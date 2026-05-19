@@ -38,6 +38,19 @@ export type DeckWithCards = Deck & {
   cards: (DeckCard & { card: Card })[];
 };
 
+export type Room = {
+  id: string;
+  code: string;
+  host_id: string;
+  guest_id: string | null;
+  host_email: string;
+  guest_email: string | null;
+  host_deck_id: string | null;
+  guest_deck_id: string | null;
+  status: "waiting" | "active" | "finished";
+  created_at: string;
+};
+
 export const DECK_RULES = {
   MAIN_DECK_SIZE: 50,
   MAX_COPIES_PER_BASE_CARD: 4,
