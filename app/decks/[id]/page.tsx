@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDeckWithCards } from "@/lib/decks/queries";
+import { exportDecklist } from "@/lib/decks/parse";
 import { DECK_RULES } from "@/lib/types";
+import ExportButton from "../_components/ExportButton";
 
 export default async function DeckDetailPage({
   params,
@@ -44,12 +46,15 @@ export default async function DeckDetailPage({
               {totalCards} / {DECK_RULES.MAIN_DECK_SIZE} cards · {colors.size === 0 ? "no color" : [...colors].join(", ")}
             </p>
           </div>
-          <Link
-            href={`/decks/${deck.id}/edit`}
-            className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-          >
-            Edit
-          </Link>
+          <div className="flex items-center gap-2">
+            <ExportButton text={exportDecklist(deck)} />
+            <Link
+              href={`/decks/${deck.id}/edit`}
+              className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
+            >
+              Edit
+            </Link>
+          </div>
         </header>
 
         <section className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">

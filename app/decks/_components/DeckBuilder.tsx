@@ -6,6 +6,7 @@ import type { Card } from "@/lib/types";
 import { DECK_RULES } from "@/lib/types";
 import { createDeck, updateDeck, deleteDeck, type SaveDeckInput } from "@/lib/decks/actions";
 import CardPreviewModal from "./CardPreviewModal";
+import ImportModal from "./ImportModal";
 
 type Props = {
   cards: Card[];
@@ -38,6 +39,7 @@ export default function DeckBuilder({ cards, mode, initial }: Props) {
   const [setFilter, setSetFilter] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [previewCardId, setPreviewCardId] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const cardById = useMemo(() => {
     const m = new Map<string, Card>();
@@ -272,6 +274,14 @@ export default function DeckBuilder({ cards, mode, initial }: Props) {
       {/* Right: deck panel */}
       <aside className="space-y-3 lg:sticky lg:top-4 lg:self-start">
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="mb-3 w-full rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          >
+            Import from text
+          </button>
+
           <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
             Deck name
           </label>
@@ -397,6 +407,19 @@ export default function DeckBuilder({ cards, mode, initial }: Props) {
           onAdd={() => addCopy(cardById.get(previewCardId)!)}
           onRemove={() => removeCopy(previewCardId)}
           onClose={() => setPreviewCardId(null)}
+        />
+      )}
+
+      {importOpen && (
+        <ImportModal
+          catalog={cards}
+          onClose={() => setImportOpen(false)}
+          onLoad={(entries) => {
+            const next = new Map<string, number>();
+            for (const e of entries) next.set(e.card_id, e.copies);
+            setSelection(next);
+            setError(null);
+          }}
         />
       )}
     </div>
