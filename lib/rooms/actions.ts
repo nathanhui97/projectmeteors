@@ -214,11 +214,18 @@ export async function reportResult(
 
   if (hostClaim && guestClaim) {
     if (hostClaim === guestClaim) {
+      const finishedAt = new Date().toISOString();
       await supabase.from("rooms").update({
         winner_id: hostClaim,
         status: "finished",
-        finished_at: new Date().toISOString(),
+        finished_at: finishedAt,
       }).eq("id", roomId);
+      await supabase.from("match_results").insert({
+        host_id: room.host_id,
+        guest_id: room.guest_id,
+        winner_id: hostClaim,
+        finished_at: finishedAt,
+      });
     } else {
       await supabase.from("rooms").update({ status: "disputed" }).eq("id", roomId);
     }

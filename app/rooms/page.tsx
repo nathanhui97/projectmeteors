@@ -66,12 +66,14 @@ export default async function RoomsPage({
           </button>
         </form>
 
-        <a
-          href="/"
-          className="block text-center text-sm text-neutral-500 hover:underline dark:text-neutral-400"
-        >
-          ← Back to home
-        </a>
+        <div className="flex items-center justify-between text-sm text-neutral-500 dark:text-neutral-400">
+          <a href="/" className="hover:underline">
+            ← Back to home
+          </a>
+          <a href="/history" className="hover:underline">
+            Match history
+          </a>
+        </div>
       </div>
     </main>
   );
