@@ -95,6 +95,46 @@ export async function selectDeck(
   return { error: error?.message ?? null };
 }
 
+export async function setReady(
+  roomId: string,
+  role: "host" | "guest",
+): Promise<{ error: string | null }> {
+  const { supabase } = await getAuthenticatedUser();
+  const field = role === "host" ? "host_ready" : "guest_ready";
+  const { error } = await supabase
+    .from("rooms")
+    .update({ [field]: true })
+    .eq("id", roomId);
+  return { error: error?.message ?? null };
+}
+
+export async function showCard(
+  roomId: string,
+  cardId: string,
+  role: "host" | "guest",
+): Promise<{ error: string | null }> {
+  const { supabase } = await getAuthenticatedUser();
+  const field = role === "host" ? "host_shown_card_id" : "guest_shown_card_id";
+  const { error } = await supabase
+    .from("rooms")
+    .update({ [field]: cardId })
+    .eq("id", roomId);
+  return { error: error?.message ?? null };
+}
+
+export async function clearShownCard(
+  roomId: string,
+  role: "host" | "guest",
+): Promise<{ error: string | null }> {
+  const { supabase } = await getAuthenticatedUser();
+  const field = role === "host" ? "host_shown_card_id" : "guest_shown_card_id";
+  const { error } = await supabase
+    .from("rooms")
+    .update({ [field]: null })
+    .eq("id", roomId);
+  return { error: error?.message ?? null };
+}
+
 export async function leaveRoom(
   roomId: string,
   role: "host" | "guest",

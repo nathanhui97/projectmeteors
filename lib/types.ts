@@ -47,6 +47,10 @@ export type Room = {
   guest_email: string | null;
   host_deck_id: string | null;
   guest_deck_id: string | null;
+  host_ready: boolean;
+  guest_ready: boolean;
+  host_shown_card_id: string | null;
+  guest_shown_card_id: string | null;
   status: "waiting" | "active" | "finished";
   created_at: string;
 };

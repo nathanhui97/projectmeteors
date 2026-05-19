@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getRoomByCode } from "@/lib/rooms/queries";
-import { getUserDecks } from "@/lib/decks/queries";
+import { getUserDecks, getDeckWithCards } from "@/lib/decks/queries";
 import { joinRoom } from "@/lib/rooms/actions";
 import { RoomLobby } from "./_components/RoomLobby";
 
@@ -96,6 +96,8 @@ export default async function RoomPage({
 
   const userDecks = await getUserDecks();
   const role = isHost ? "host" : "guest";
+  const myDeckId = isHost ? room.host_deck_id : room.guest_deck_id;
+  const myDeck = myDeckId ? await getDeckWithCards(myDeckId) : null;
 
   return (
     <RoomLobby
@@ -103,6 +105,7 @@ export default async function RoomPage({
       currentUserId={user.id}
       role={role}
       userDecks={userDecks}
+      myDeck={myDeck}
     />
   );
 }
