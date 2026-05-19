@@ -56,6 +56,7 @@ export type Room = {
   host_result_claim: string | null;
   guest_result_claim: string | null;
   status: "waiting" | "active" | "finished" | "disputed";
+  daily_room_url: string | null;
   created_at: string;
 };
 

@@ -3,6 +3,47 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+const DAILY_API = "https://api.daily.co/v1";
+
+async function dailyFetch(path: string, options?: RequestInit) {
+  return fetch(`${DAILY_API}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.DAILY_API_KEY}`,
+      ...options?.headers,
+    },
+  });
+}
+
+async function createDailyRoom(code: string): Promise<string | null> {
+  try {
+    const res = await dailyFetch("/rooms", {
+      method: "POST",
+      body: JSON.stringify({
+        name: `meteors-${code.toLowerCase()}`,
+        privacy: "private",
+        properties: { exp: Math.floor(Date.now() / 1000) + 86400 * 7 },
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data.url as string) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function deleteDailyRoom(roomUrl: string): Promise<void> {
+  try {
+    const name = roomUrl.split("/").pop();
+    if (!name) return;
+    await dailyFetch(`/rooms/${name}`, { method: "DELETE" });
+  } catch {
+    // best-effort
+  }
+}
+
 function generateCode(): string {
   // Uppercase only, excluding I and O to avoid confusion with 1 and 0.
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -27,13 +68,21 @@ export async function createRoom(_formData: FormData) {
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateCode();
-    const { error } = await supabase.from("rooms").insert({
-      code,
-      host_id: user.id,
-      host_email: user.email!,
-    });
-    if (!error) redirect(`/rooms/${code}`);
-    if (!error.message.includes("unique")) throw error;
+    const { data: inserted, error } = await supabase
+      .from("rooms")
+      .insert({ code, host_id: user.id, host_email: user.email! })
+      .select("id")
+      .single();
+    if (error?.message.includes("unique")) continue;
+    if (error) throw error;
+
+    // Create Daily video room (best-effort — don't block on failure)
+    const dailyUrl = await createDailyRoom(code);
+    if (dailyUrl && inserted?.id) {
+      await supabase.from("rooms").update({ daily_room_url: dailyUrl }).eq("id", inserted.id);
+    }
+
+    redirect(`/rooms/${code}`);
   }
   throw new Error("Failed to generate a unique room code — try again.");
 }
@@ -186,6 +235,14 @@ export async function leaveRoom(
   const { supabase } = await getAuthenticatedUser();
 
   if (role === "host") {
+    // Delete Daily video room before removing the DB row.
+    const { data: roomRow } = await supabase
+      .from("rooms")
+      .select("daily_room_url")
+      .eq("id", roomId)
+      .maybeSingle();
+    if (roomRow?.daily_room_url) await deleteDailyRoom(roomRow.daily_room_url);
+
     // Deleting the room kicks the guest via realtime DELETE event.
     await supabase.from("rooms").delete().eq("id", roomId);
   } else {

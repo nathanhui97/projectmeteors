@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { selectDeck, leaveRoom, setReady } from "@/lib/rooms/actions";
 import { GamePanel } from "./GamePanel";
 import { CameraReminder } from "./CameraReminder";
+import { VideoCall } from "./VideoCall";
 import type { Room, Deck, DeckCard, Card, DeckWithCards } from "@/lib/types";
 
 type DeckCardWithCard = DeckCard & { card: Card };
@@ -144,23 +145,22 @@ export function RoomLobby({
         </header>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Left — main area (video feed goes here later) */}
-          <div className="flex flex-1 items-center justify-center">
-            {finished ? (
-              <div className="space-y-3 text-center">
-                <p className="text-4xl font-bold text-neutral-100">
-                  {iWon ? "You won!" : "You lost."}
-                </p>
-                <p className="text-sm text-neutral-400">
-                  {iWon
-                    ? `${loserEmail} conceded the match.`
-                    : `${winnerEmail} was declared the winner.`}
-                </p>
+          {/* Left — live video feed */}
+          <div className="relative flex-1">
+            <VideoCall roomId={room.id} />
+            {finished && (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-950/75">
+                <div className="space-y-3 text-center">
+                  <p className="text-4xl font-bold text-neutral-100">
+                    {iWon ? "You won!" : "You lost."}
+                  </p>
+                  <p className="text-sm text-neutral-400">
+                    {iWon
+                      ? `${loserEmail} conceded the match.`
+                      : `${winnerEmail} was declared the winner.`}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <p className="text-sm text-neutral-700">
-                Video feed coming in a later phase.
-              </p>
             )}
           </div>
 
