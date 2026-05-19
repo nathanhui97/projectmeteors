@@ -22,14 +22,22 @@ export default async function Home() {
                 {user.email}
               </span>
             </p>
-            <form action="/auth/signout" method="post">
-              <button
-                type="submit"
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            <div className="flex items-center gap-3">
+              <Link
+                href="/decks"
+                className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
               >
-                Sign out
-              </button>
-            </form>
+                My Decks
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

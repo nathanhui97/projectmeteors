@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Scraper output (regenerated locally; not part of the deployed app)
+/scripts/card-images/
+/scripts/exploration/
+/scripts/cards.json
+/scripts/scrape-progress.json
