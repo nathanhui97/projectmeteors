@@ -135,6 +135,50 @@ export async function clearShownCard(
   return { error: error?.message ?? null };
 }
 
+export async function reportResult(
+  roomId: string,
+  claimedWinnerId: string,
+  role: "host" | "guest",
+): Promise<{ error: string | null }> {
+  const { supabase } = await getAuthenticatedUser();
+
+  const { data: room } = await supabase
+    .from("rooms")
+    .select("host_id, guest_id, host_result_claim, guest_result_claim")
+    .eq("id", roomId)
+    .maybeSingle();
+  if (!room) return { error: "Room not found" };
+  if (claimedWinnerId !== room.host_id && claimedWinnerId !== room.guest_id) {
+    return { error: "Invalid winner" };
+  }
+
+  const claimField = role === "host" ? "host_result_claim" : "guest_result_claim";
+  const { error: claimErr } = await supabase
+    .from("rooms")
+    .update({ [claimField]: claimedWinnerId })
+    .eq("id", roomId);
+  if (claimErr) return { error: claimErr.message };
+
+  // Resolve immediately if both claims are now set.
+  const hostClaim  = role === "host"  ? claimedWinnerId : room.host_result_claim;
+  const guestClaim = role === "guest" ? claimedWinnerId : room.guest_result_claim;
+
+  if (hostClaim && guestClaim) {
+    if (hostClaim === guestClaim) {
+      await supabase.from("rooms").update({
+        winner_id: hostClaim,
+        status: "finished",
+        finished_at: new Date().toISOString(),
+      }).eq("id", roomId);
+    } else {
+      await supabase.from("rooms").update({ status: "disputed" }).eq("id", roomId);
+    }
+  }
+
+  return { error: null };
+}
+
+
 export async function leaveRoom(
   roomId: string,
   role: "host" | "guest",

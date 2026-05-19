@@ -116,9 +116,14 @@ export function RoomLobby({
 
   // ── Play view ──────────────────────────────────────────────────────────────
   if (bothReady) {
+    const finished   = room.status === "finished";
+    const iWon       = finished && room.winner_id === currentUserId;
+    const winnerEmail= room.winner_id === room.host_id ? room.host_email : room.guest_email;
+    const loserEmail = room.winner_id === room.host_id ? room.guest_email : room.host_email;
+
     return (
-      <main className="relative flex min-h-screen flex-col bg-neutral-950">
-        <header className="flex items-center justify-between border-b border-neutral-800 px-6 py-3">
+      <main className="flex h-screen flex-col overflow-hidden bg-neutral-950">
+        <header className="flex flex-shrink-0 items-center justify-between border-b border-neutral-800 px-6 py-3">
           <div className="flex items-center gap-3">
             <span className="font-mono text-sm font-bold tracking-widest text-neutral-100">
               {room.code}
@@ -136,18 +141,36 @@ export function RoomLobby({
           </button>
         </header>
 
-        <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-neutral-700">
-            Drag the panel to reposition it.
-          </p>
-        </div>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left — main area (video feed goes here later) */}
+          <div className="flex flex-1 items-center justify-center">
+            {finished ? (
+              <div className="space-y-3 text-center">
+                <p className="text-4xl font-bold text-neutral-100">
+                  {iWon ? "You won!" : "You lost."}
+                </p>
+                <p className="text-sm text-neutral-400">
+                  {iWon
+                    ? `${loserEmail} conceded the match.`
+                    : `${winnerEmail} was declared the winner.`}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-neutral-700">
+                Video feed coming in a later phase.
+              </p>
+            )}
+          </div>
 
-        <GamePanel
-          room={room}
-          role={role}
-          myCards={myCards}
-          onRoomUpdate={setRoom}
-        />
+          {/* Right — static sidebar */}
+          <GamePanel
+            room={room}
+            role={role}
+            myCards={myCards}
+            currentUserId={currentUserId}
+            onRoomUpdate={setRoom}
+          />
+        </div>
       </main>
     );
   }

@@ -51,7 +51,11 @@ export type Room = {
   guest_ready: boolean;
   host_shown_card_id: string | null;
   guest_shown_card_id: string | null;
-  status: "waiting" | "active" | "finished";
+  winner_id: string | null;
+  finished_at: string | null;
+  host_result_claim: string | null;
+  guest_result_claim: string | null;
+  status: "waiting" | "active" | "finished" | "disputed";
   created_at: string;
 };
 
