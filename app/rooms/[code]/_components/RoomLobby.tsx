@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { selectDeck, leaveRoom, setReady } from "@/lib/rooms/actions";
 import { GamePanel } from "./GamePanel";
+import { CameraReminder } from "./CameraReminder";
 import type { Room, Deck, DeckCard, Card, DeckWithCards } from "@/lib/types";
 
 type DeckCardWithCard = DeckCard & { card: Card };
@@ -60,17 +61,18 @@ export function RoomLobby({
     return () => { supabase.removeChannel(channel); };
   }, [room.id, currentUserId, router]);
 
-  // ── Polling fallback (4 s) — covers networks where WebSockets are blocked ──
+  // ── Polling fallback (2 s) — covers networks where WebSockets are blocked ──
   useEffect(() => {
     const supabase = createClient();
-    const id = setInterval(async () => {
+    const poll = async () => {
       const { data } = await supabase
         .from("rooms")
         .select("*")
         .eq("id", room.id)
         .maybeSingle();
       if (data) setRoom(data as Room);
-    }, 4000);
+    };
+    const id = setInterval(poll, 2000);
     return () => clearInterval(id);
   }, [room.id]);
 
@@ -248,6 +250,7 @@ export function RoomLobby({
           empty={!room.guest_id}
         />
       </div>
+      <CameraReminder />
     </main>
   );
 }

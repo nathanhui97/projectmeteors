@@ -35,6 +35,12 @@ export default async function Home() {
               >
                 My Decks
               </Link>
+              <Link
+                href="/setup-guide"
+                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              >
+                Camera Setup
+              </Link>
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
