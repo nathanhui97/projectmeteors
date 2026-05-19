@@ -45,3 +45,7 @@ next-env.d.ts
 /scripts/exploration/
 /scripts/cards.json
 /scripts/scrape-progress.json
+
+# Claude Code: per-machine local settings only. A shared .claude/settings.json
+# (if we add one) should still be committed.
+/.claude/settings.local.json
