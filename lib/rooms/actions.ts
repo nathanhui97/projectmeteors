@@ -63,8 +63,9 @@ async function getAuthenticatedUser() {
   return { supabase, user };
 }
 
-export async function createRoom(_formData: FormData) {
+export async function createRoom(formData: FormData) {
   const { supabase, user } = await getAuthenticatedUser();
+  const deckId = (formData.get("deck_id") as string | null) || null;
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateCode();
@@ -76,10 +77,13 @@ export async function createRoom(_formData: FormData) {
     if (error?.message.includes("unique")) continue;
     if (error) throw error;
 
-    // Create Daily video room (best-effort — don't block on failure)
+    // Create Daily video room and optionally pre-set deck (best-effort)
     const dailyUrl = await createDailyRoom(code);
-    if (dailyUrl && inserted?.id) {
-      await supabase.from("rooms").update({ daily_room_url: dailyUrl }).eq("id", inserted.id);
+    const updates: Record<string, string> = {};
+    if (dailyUrl) updates.daily_room_url = dailyUrl;
+    if (deckId) updates.host_deck_id = deckId;
+    if (Object.keys(updates).length > 0 && inserted?.id) {
+      await supabase.from("rooms").update(updates).eq("id", inserted.id);
     }
 
     redirect(`/rooms/${code}`);
@@ -110,9 +114,16 @@ export async function joinRoom(formData: FormData) {
   if (room.status !== "waiting")
     redirect("/rooms?error=Room+is+not+accepting+players");
 
+  const deckId = (formData.get("deck_id") as string | null) || null;
+  const guestUpdate: Record<string, string | null> = {
+    guest_id: user.id,
+    guest_email: user.email ?? null,
+  };
+  if (deckId) guestUpdate.guest_deck_id = deckId;
+
   const { error } = await supabase
     .from("rooms")
-    .update({ guest_id: user.id, guest_email: user.email })
+    .update(guestUpdate)
     .eq("code", code);
 
   if (error) redirect(`/rooms?error=${encodeURIComponent(error.message)}`);
