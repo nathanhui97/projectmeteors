@@ -75,12 +75,10 @@ export function VideoCall({ roomId }: Props) {
       call.on("joined-meeting", () => {
         if (dead) return;
         setStatus("joined");
-        // Attach local video that started before joined-meeting fired
+        // Attach local tracks that may have started before joined-meeting fired
         const local = call.participants()?.local;
-        if (local?.videoTrack) attachTrack(local.videoTrack, localVideoRef.current);
-        if (local?.audioTrack) {
-          // mute local audio to prevent echo
-        }
+        const localVideo = local?.tracks?.video?.persistentTrack ?? local?.videoTrack;
+        if (localVideo) attachTrack(localVideo as MediaStreamTrack, localVideoRef.current);
       });
 
       call.on("error", (e: any) => {
