@@ -60,6 +60,17 @@ export type Room = {
   created_at: string;
 };
 
+export type QueueEntry = {
+  id: string;
+  user_id: string;
+  deck_id: string;
+  mode: "casual" | "ranked";
+  status: "waiting" | "matched" | "cancelled";
+  matched_room_id: string | null;
+  joined_at: string;
+  expires_at: string;
+};
+
 export const DECK_RULES = {
   MAIN_DECK_SIZE: 50,
   MAX_COPIES_PER_BASE_CARD: 4,

@@ -23,7 +23,7 @@ export default async function Home() {
 
           <div className="space-y-3">
             <Link
-              href="/rooms"
+              href="/play"
               className="flex w-full items-center justify-center rounded-xl bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-900 hover:bg-white transition-colors"
             >
               Play
