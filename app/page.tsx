@@ -7,64 +7,112 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-neutral-50 p-8 dark:bg-neutral-950">
-      <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <h1 className="mb-4 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          projectmeteors
-        </h1>
+  if (user) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 p-8">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-100">Project V</h1>
+            <p className="text-sm text-neutral-500">Gundam TCG — online webcam play</p>
+          </div>
 
-        {user ? (
-          <div className="space-y-4">
-            <p className="text-sm text-neutral-700 dark:text-neutral-300">
-              Signed in as{" "}
-              <span className="font-mono text-neutral-900 dark:text-neutral-100">
-                {user.email}
-              </span>
-            </p>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/rooms"
-                className="rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-              >
-                Play
-              </Link>
+          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 space-y-3">
+            <p className="text-xs text-neutral-500 font-medium uppercase tracking-wider">Signed in as</p>
+            <p className="text-sm font-medium text-neutral-200 truncate">{user.email}</p>
+          </div>
+
+          <div className="space-y-3">
+            <Link
+              href="/rooms"
+              className="flex w-full items-center justify-center rounded-xl bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-900 hover:bg-white transition-colors"
+            >
+              Play
+            </Link>
+            <div className="grid grid-cols-2 gap-3">
               <Link
                 href="/decks"
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                className="flex items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
               >
                 My Decks
               </Link>
               <Link
-                href="/setup-guide"
-                className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                href="/history"
+                className="flex items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-neutral-100 transition-colors"
               >
-                Camera Setup
+                Match History
               </Link>
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-100 dark:hover:bg-neutral-800"
-                >
-                  Sign out
-                </button>
-              </form>
             </div>
+            <form action="/auth/signout" method="post">
+              <button
+                type="submit"
+                className="w-full rounded-xl border border-neutral-800 px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-300 hover:border-neutral-700 transition-colors"
+              >
+                Sign out
+              </button>
+            </form>
           </div>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-neutral-700 dark:text-neutral-300">
-              You are not signed in.
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="flex min-h-screen flex-col bg-neutral-950">
+      {/* Hero */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+        <div className="max-w-lg space-y-6">
+          <div className="space-y-3">
+            <h1 className="text-5xl font-bold tracking-tight text-neutral-100">
+              Project V
+            </h1>
+            <p className="text-lg text-neutral-400">
+              Play Gundam TCG online with your webcam. Build your deck, create a room, and battle face-to-face from anywhere.
             </p>
+          </div>
+
+          <div className="flex flex-col items-center gap-3 pt-2">
             <Link
               href="/login"
-              className="inline-block rounded-md bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
+              className="w-full max-w-xs rounded-xl bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-900 hover:bg-white transition-colors"
             >
-              Go to sign in
+              Get started
+            </Link>
+            <Link
+              href="/login"
+              className="text-sm text-neutral-500 hover:text-neutral-300 transition-colors"
+            >
+              Already have an account? Sign in →
             </Link>
           </div>
-        )}
+        </div>
+      </div>
+
+      {/* Feature grid */}
+      <div className="border-t border-neutral-800 px-6 py-16">
+        <div className="mx-auto grid max-w-3xl gap-6 sm:grid-cols-3">
+          <Feature
+            title="Webcam play"
+            description="Live video with your opponent via built-in room — no third-party call needed."
+          />
+          <Feature
+            title="Deck builder"
+            description="Browse the full Gundam TCG card catalog and build your 50-card deck."
+          />
+          <Feature
+            title="Match history"
+            description="Track your wins and losses across every game you play."
+          />
+        </div>
       </div>
     </main>
+  );
+}
+
+function Feature({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="space-y-2 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+      <h3 className="text-sm font-semibold text-neutral-100">{title}</h3>
+      <p className="text-sm text-neutral-500">{description}</p>
+    </div>
   );
 }

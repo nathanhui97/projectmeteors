@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Camera Setup Guide — projectmeteors" };
+export const metadata = { title: "Camera Setup — Project V" };
 
 const tips = [
   {

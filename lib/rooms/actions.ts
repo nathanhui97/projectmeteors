@@ -21,7 +21,7 @@ async function createDailyRoom(code: string): Promise<string | null> {
     const res = await dailyFetch("/rooms", {
       method: "POST",
       body: JSON.stringify({
-        name: `meteors-${code.toLowerCase()}`,
+        name: `projectv-${code.toLowerCase()}`,
         privacy: "private",
         properties: { exp: Math.floor(Date.now() / 1000) + 86400 * 7 },
       }),
