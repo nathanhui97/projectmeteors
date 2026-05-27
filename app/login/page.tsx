@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { login, signup, forgotPassword } from "./actions";
 
-export default function LoginPage({}: {
-  searchParams?: Promise<{ error?: string; message?: string }>;
-}) {
+export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error") ?? "";
+
   const [tab, setTab] = useState<"signin" | "signup" | "forgot">("signin");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(urlError);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
