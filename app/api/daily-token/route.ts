@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createDailyRoom } from "@/lib/rooms/daily";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   const { data: room } = await supabase
     .from("rooms")
-    .select("daily_room_url, host_id, guest_id")
+    .select("code, daily_room_url, host_id, guest_id")
     .eq("id", roomId)
     .maybeSingle();
 
@@ -21,11 +22,25 @@ export async function GET(request: NextRequest) {
   if (room.host_id !== user.id && room.guest_id !== user.id) {
     return NextResponse.json({ error: "Not in this room" }, { status: 403 });
   }
-  if (!room.daily_room_url) {
-    return NextResponse.json({ error: "No video room" }, { status: 404 });
+
+  // If daily_room_url is missing (e.g. matchmaking race condition or earlier failure),
+  // create it now on the fly so video always works.
+  let dailyRoomUrl = room.daily_room_url;
+  if (!dailyRoomUrl) {
+    dailyRoomUrl = await createDailyRoom(room.code);
+    if (dailyRoomUrl) {
+      await supabase
+        .from("rooms")
+        .update({ daily_room_url: dailyRoomUrl })
+        .eq("id", roomId);
+    }
   }
 
-  const roomName = room.daily_room_url.split("/").pop();
+  if (!dailyRoomUrl) {
+    return NextResponse.json({ error: "Could not create video room" }, { status: 502 });
+  }
+
+  const roomName = dailyRoomUrl.split("/").pop();
 
   const tokenRes = await fetch("https://api.daily.co/v1/meeting-tokens", {
     method: "POST",
@@ -47,5 +62,5 @@ export async function GET(request: NextRequest) {
   }
 
   const { token } = await tokenRes.json();
-  return NextResponse.json({ token, roomUrl: room.daily_room_url });
+  return NextResponse.json({ token, roomUrl: dailyRoomUrl });
 }
