@@ -8,14 +8,19 @@ import { createClient } from "@/lib/supabase/server";
 export async function login(
   formData: FormData,
 ): Promise<{ error: string } | void> {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  });
-  if (error) return { error: error.message };
-  revalidatePath("/", "layout");
-  redirect("/");
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    });
+    if (error) return { error: error.message };
+    revalidatePath("/", "layout");
+    redirect("/");
+  } catch (e: any) {
+    if (e?.digest?.startsWith("NEXT_REDIRECT")) throw e;
+    return { error: e?.message ?? "Unexpected error — check Vercel logs" };
+  }
 }
 
 export async function signup(
