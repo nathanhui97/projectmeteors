@@ -61,7 +61,6 @@ declare
   v_code     text;
   v_queue_id uuid;
   v_chars    text := 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  v_bytes    bytea;
   v_i        int;
   v_attempt  int := 0;
 begin
@@ -86,12 +85,11 @@ begin
    for update skip locked;
 
   if v_opponent.id is not null then
-    -- Generate a unique room code from the allowed charset
+    -- Generate a unique room code using random()
     loop
-      v_bytes := gen_random_bytes(6);
-      v_code  := '';
-      for v_i in 0..5 loop
-        v_code := v_code || substr(v_chars, 1 + (get_byte(v_bytes, v_i) % length(v_chars)), 1);
+      v_code := '';
+      for v_i in 1..6 loop
+        v_code := v_code || substr(v_chars, 1 + floor(random() * length(v_chars))::int, 1);
       end loop;
       exit when not exists (select 1 from rooms where code = v_code);
       v_attempt := v_attempt + 1;
