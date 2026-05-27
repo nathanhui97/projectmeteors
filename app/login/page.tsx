@@ -1,10 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { login, signup, forgotPassword } from "./actions";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error") ?? "";
 
