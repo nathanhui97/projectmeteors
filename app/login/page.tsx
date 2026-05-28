@@ -1,36 +1,28 @@
 "use client";
 
-import { useState, useTransition, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { login, signup, forgotPassword } from "./actions";
 
 export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
-  );
-}
-
-function LoginForm() {
-  const searchParams = useSearchParams();
-  const urlError = searchParams.get("error") ?? "";
-
   const [tab, setTab] = useState<"signin" | "signup" | "forgot">("signin");
-  const [error, setError] = useState(urlError);
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  function handleLogin(formData: FormData) {
+  function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError("");
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       const result = await login(formData);
       if (result?.error) setError(result.error);
     });
   }
 
-  function handleSignup(formData: FormData) {
+  function handleSignup(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError("");
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       const result = await signup(formData);
       if (result?.error) setError(result.error);
@@ -38,8 +30,10 @@ function LoginForm() {
     });
   }
 
-  function handleForgot(formData: FormData) {
+  function handleForgot(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError("");
+    const formData = new FormData(e.currentTarget);
     startTransition(async () => {
       const result = await forgotPassword(formData);
       if (result?.error) setError(result.error);
@@ -51,29 +45,20 @@ function LoginForm() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 p-6">
       <div className="w-full max-w-sm space-y-8">
 
-        {/* Branding */}
         <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-100">
-            Project V
-          </h1>
-          <p className="text-sm text-neutral-500">
-            Gundam TCG — online webcam play
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-neutral-100">Project V</h1>
+          <p className="text-sm text-neutral-500">Gundam TCG — online webcam play</p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-xl space-y-5">
 
-          {/* Tabs */}
           {tab !== "forgot" && (
             <div className="flex rounded-lg bg-neutral-800 p-1">
               <button
                 type="button"
                 onClick={() => { setTab("signin"); setError(""); setMessage(""); }}
                 className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-                  tab === "signin"
-                    ? "bg-neutral-100 text-neutral-900"
-                    : "text-neutral-400 hover:text-neutral-200"
+                  tab === "signin" ? "bg-neutral-100 text-neutral-900" : "text-neutral-400 hover:text-neutral-200"
                 }`}
               >
                 Sign in
@@ -82,9 +67,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => { setTab("signup"); setError(""); setMessage(""); }}
                 className={`flex-1 rounded-md py-1.5 text-sm font-medium transition-colors ${
-                  tab === "signup"
-                    ? "bg-neutral-100 text-neutral-900"
-                    : "text-neutral-400 hover:text-neutral-200"
+                  tab === "signup" ? "bg-neutral-100 text-neutral-900" : "text-neutral-400 hover:text-neutral-200"
                 }`}
               >
                 Sign up
@@ -92,9 +75,8 @@ function LoginForm() {
             </div>
           )}
 
-          {/* Sign In */}
           {tab === "signin" && (
-            <form action={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4">
               <Field label="Email" name="email" type="email" />
               <Field label="Password" name="password" type="password" />
               {error && <p className="text-sm text-red-400">{error}</p>}
@@ -115,9 +97,8 @@ function LoginForm() {
             </form>
           )}
 
-          {/* Sign Up */}
           {tab === "signup" && (
-            <form action={handleSignup} className="space-y-4">
+            <form onSubmit={handleSignup} className="space-y-4">
               <Field label="Email" name="email" type="email" />
               <Field label="Password" name="password" type="password" minLength={6} />
               {error && <p className="text-sm text-red-400">{error}</p>}
@@ -135,9 +116,8 @@ function LoginForm() {
             </form>
           )}
 
-          {/* Forgot Password */}
           {tab === "forgot" && (
-            <form action={handleForgot} className="space-y-4">
+            <form onSubmit={handleForgot} className="space-y-4">
               <div>
                 <button
                   type="button"
